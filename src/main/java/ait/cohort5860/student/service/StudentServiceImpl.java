@@ -18,13 +18,13 @@ import java.util.Set;
  * @version 1.0 (20.06.2025)
  */
 @Component
-public class StudentServiceImpl implements StudentService{
+public class StudentServiceImpl implements StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
     @Override
     public Boolean addStudent(StudentCredentialsDto studentCredentialsDto) {
-        if(studentRepository.findById(studentCredentialsDto.getId()).isPresent()) {
+        if (studentRepository.findById(studentCredentialsDto.getId()).isPresent()) {
             return false;
         }
         Student student = new Student(studentCredentialsDto.getId(), studentCredentialsDto.getName(),
@@ -41,12 +41,23 @@ public class StudentServiceImpl implements StudentService{
 
     @Override
     public StudentDto removeStudent(Long id) {
-        return null;
+        Student student = studentRepository.findById(id).orElseThrow(NotFoundException::new);
+        studentRepository.deleteById(id);
+        return new StudentDto(student.getId(), student.getName(), student.getScores());
     }
 
     @Override
     public StudentCredentialsDto updateStudent(Long id, StudentUpdateDto studentUpdateDto) {
-        return null;
+
+        Student student = studentRepository.findById(id).orElseThrow(NotFoundException::new);
+        if (studentUpdateDto.getName() != null) {
+            student.setName(studentUpdateDto.getName());
+        }
+        if (studentUpdateDto.getPassword() != null) {
+            student.setPassword(studentUpdateDto.getPassword());
+        }
+        studentRepository.save(student);
+        return new StudentCredentialsDto(student.getId(), student.getName(), student.getPassword());
     }
 
     @Override

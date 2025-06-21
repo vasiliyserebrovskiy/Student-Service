@@ -62,12 +62,18 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Boolean addScore(Long id, ScoreDto scoreDto) {
-        return null;
+        Student student = studentRepository.findById(id).orElseThrow(NotFoundException::new);
+        boolean result = student.addScore(scoreDto.getExamName(), scoreDto.getScore());
+        studentRepository.save(student);
+        return result;
     }
 
     @Override
     public List<StudentDto> findStudentsByName(String name) {
-        return List.of();
+        return studentRepository.findAll().stream()
+                .filter(student -> student.getName().equalsIgnoreCase(name))
+                .map(student -> new StudentDto(student.getId(), student.getName(), student.getScores()))
+                .toList();
     }
 
     @Override

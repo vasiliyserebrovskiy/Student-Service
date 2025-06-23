@@ -2,6 +2,7 @@ package ait.cohort5860.student.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
  * @author Vasilii Serebrovskii
  * @version 1.0 (20.06.2025)
  */
+@NoArgsConstructor
 @Getter
 @EqualsAndHashCode(of = "id")
 //@Document(collection = "students") annotation for naming DB collection in mongoDB

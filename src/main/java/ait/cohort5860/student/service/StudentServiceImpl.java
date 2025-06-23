@@ -8,6 +8,7 @@ import ait.cohort5860.student.dto.StudentUpdateDto;
 import ait.cohort5860.student.dto.exceptions.NotFoundException;
 import ait.cohort5860.student.model.Student;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -24,14 +25,17 @@ import java.util.Set;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public Boolean addStudent(StudentCredentialsDto studentCredentialsDto) {
         if (studentRepository.findById(studentCredentialsDto.getId()).isPresent()) {
             return false;
         }
-        Student student = new Student(studentCredentialsDto.getId(), studentCredentialsDto.getName(),
-                studentCredentialsDto.getPassword());
+
+//        Student student = new Student(studentCredentialsDto.getId(), studentCredentialsDto.getName(),
+//                studentCredentialsDto.getPassword());
+        Student student = modelMapper.map(studentCredentialsDto, Student.class);
         studentRepository.save(student);
         return true;
     }
@@ -39,7 +43,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDto findStudent(Long id) {
         Student student = studentRepository.findById(id).orElseThrow(NotFoundException::new);
-        return new StudentDto(student.getId(), student.getName(), student.getScores());
+        return modelMapper.map(student, StudentDto.class);
+        //return new StudentDto(student.getId(), student.getName(), student.getScores());
     }
 
     @Override
@@ -73,8 +78,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<StudentDto> findStudentsByName(String name) {
-        return studentRepository.findAll().stream()
-                .filter(student -> student.getName().equalsIgnoreCase(name))
+        return studentRepository.findStudentsByNameIgnoreCase(name)
                 .map(student -> new StudentDto(student.getId(), student.getName(), student.getScores()))
                 .toList();
     }
@@ -88,8 +92,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<StudentDto> findStudentsByExamNameMinScore(String examName, Integer minScore) {
-        return studentRepository.findAll().stream()
-                .filter(student -> student.getScores().containsKey(examName) && student.getScores().get(examName) >= minScore)
+        return studentRepository.findByExamAndScoreGreaterThen(examName, minScore)
                 .map(student -> new StudentDto(student.getId(), student.getName(), student.getScores()))
                 .toList();
     }

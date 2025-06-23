@@ -7,8 +7,10 @@ import ait.cohort5860.student.dto.StudentDto;
 import ait.cohort5860.student.dto.StudentUpdateDto;
 import ait.cohort5860.student.dto.exceptions.NotFoundException;
 import ait.cohort5860.student.model.Student;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
@@ -17,10 +19,11 @@ import java.util.Set;
  * @author Vasilii Serebrovskii
  * @version 1.0 (20.06.2025)
  */
-@Component
+@Service
+@RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
-    @Autowired
-    private StudentRepository studentRepository;
+
+    private final StudentRepository studentRepository;
 
     @Override
     public Boolean addStudent(StudentCredentialsDto studentCredentialsDto) {
@@ -64,7 +67,7 @@ public class StudentServiceImpl implements StudentService {
     public Boolean addScore(Long id, ScoreDto scoreDto) {
         Student student = studentRepository.findById(id).orElseThrow(NotFoundException::new);
         boolean result = student.addScore(scoreDto.getExamName(), scoreDto.getScore());
-        studentRepository.save(student);
+        studentRepository.save(student);// ???
         return result;
     }
 

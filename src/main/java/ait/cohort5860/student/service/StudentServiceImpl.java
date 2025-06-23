@@ -80,9 +80,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Long countStudentsByNames(Set<String> names) {
-        return studentRepository.findAll().stream()
-                .filter(student -> names.contains(student.getName()))
-                .count();
+        return studentRepository.countByNameInIgnoreCase(names);
     }
 
     @Override

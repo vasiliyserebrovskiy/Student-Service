@@ -13,7 +13,9 @@ import java.util.Map;
  */
 @Getter
 @EqualsAndHashCode(of = "id")
+//@Document(collection = "students") annotation for naming DB collection in mongoDB
 public class Student {
+    //@Id - annotation for parameter which must be unique primary key
     private long id;
     @Setter
     private String name;

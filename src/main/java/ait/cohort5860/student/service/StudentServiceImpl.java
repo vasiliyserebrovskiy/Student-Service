@@ -67,7 +67,7 @@ public class StudentServiceImpl implements StudentService {
     public Boolean addScore(Long id, ScoreDto scoreDto) {
         Student student = studentRepository.findById(id).orElseThrow(NotFoundException::new);
         boolean result = student.addScore(scoreDto.getExamName(), scoreDto.getScore());
-        studentRepository.save(student);// ???
+        studentRepository.save(student);
         return result;
     }
 

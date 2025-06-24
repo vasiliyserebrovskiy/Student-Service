@@ -18,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -175,5 +176,52 @@ public class StudentServiceTest {
         assertEquals(student1.getScores().get("History"), studentDto.get(0).getScores().get("History"));
         assertEquals(student2.getScores().get("History"), studentDto.get(1).getScores().get("History"));
         verify(studentRepository, times(1)).findStudentsByNameIgnoreCase(name);
+    }
+
+    @Test
+    void testCountStudentsByNames() {
+        // Arrange
+        Set<String> names = Set.of("Peter", "Mary");
+        Long expectedCount = 2L;
+        when(studentRepository.countByNameInIgnoreCase(names)).thenReturn(expectedCount);
+
+        // Act
+        Long result = studentService.countStudentsByNames(names);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(expectedCount, result);
+        verify(studentRepository, times(1)).countByNameInIgnoreCase(names);
+    }
+
+    @Test
+    void testFindStudentsByExamNameMinScore() {
+        // Arrange
+        String examName = "History";
+        int minScore = 80;
+        Student student1 = new Student(1000L, "John", "1234");
+        Student student2 = new Student(2000L, "john", "4321");
+        student1.addScore(examName, 95);
+        student2.addScore(examName, 90);
+
+        List<Student> students = List.of(student1, student2);
+
+        when(studentRepository.findByExamAndScoreGreaterThen(examName, minScore)).thenReturn(students.stream());
+
+        // Act
+        List<StudentDto> studentDto = studentService.findStudentsByExamNameMinScore(examName, minScore);
+
+        // Assert
+        assertNotNull(studentDto);
+        assertEquals(2, studentDto.size());
+        assertEquals(student1.getId(), studentDto.get(0).getId());
+        assertEquals(student2.getId(), studentDto.get(1).getId());
+        assertEquals(student1.getName(), studentDto.get(0).getName());
+        assertEquals(student2.getName(), studentDto.get(1).getName());
+        assertEquals(student1.getScores().get(examName), studentDto.get(0).getScores().get(examName));
+        assertEquals(student2.getScores().get(examName), studentDto.get(1).getScores().get(examName));
+        assertTrue(studentDto.get(0).getScores().get(examName) > minScore);
+        assertTrue(studentDto.get(1).getScores().get(examName) > minScore);
+        verify(studentRepository, times(1)).findByExamAndScoreGreaterThen(examName, minScore);
     }
 }

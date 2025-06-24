@@ -2,6 +2,7 @@ package ait.cohort5860.student.service;
 
 import ait.cohort5860.configuration.ServiceConfiguration;
 import ait.cohort5860.student.dao.StudentRepository;
+import ait.cohort5860.student.dto.ScoreDto;
 import ait.cohort5860.student.dto.StudentCredentialsDto;
 import ait.cohort5860.student.dto.StudentDto;
 import ait.cohort5860.student.dto.StudentUpdateDto;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -129,5 +131,49 @@ public class StudentServiceTest {
         verify(studentRepository, times(1)).save(any(Student.class));
     }
 
+    @Test
+    void testAddScore() {
+        // Arrange
+        when(studentRepository.findById(studentId)).thenReturn(Optional.ofNullable(student));
+        ScoreDto scoreDto = new ScoreDto("History", 95);
 
+        // Act
+        boolean result = studentService.addScore(studentId, scoreDto);
+
+        // Assert
+        assertTrue(result);
+        verify(studentRepository, times(1)).save(any(Student.class));
+    }
+
+    @Test
+    void testFindStudentsByName() {
+        // Arrange
+
+        String name = "John";
+        // Create our student for database return
+        Student student1 = new Student(1000L, "John", "1234");
+        Student student2 = new Student(2000L, "john", "4321");
+        // adding some score
+        student1.addScore("History", 95);
+        student2.addScore("History", 90);
+
+        // Create a list to use with return as a stream
+        List<Student> students = List.of(student1, student2);
+        // DB response
+        when(studentRepository.findStudentsByNameIgnoreCase(name)).thenReturn(students.stream());
+
+        // Act
+        List<StudentDto> studentDto = studentService.findStudentsByName(name);
+
+        // Assert
+        assertNotNull(studentDto);
+        assertEquals(2, studentDto.size());
+        assertEquals(student1.getId(), studentDto.get(0).getId());
+        assertEquals(student2.getId(), studentDto.get(1).getId());
+        assertEquals(student1.getName(), studentDto.get(0).getName());
+        assertEquals(student2.getName(), studentDto.get(1).getName());
+        assertEquals(student1.getScores().get("History"), studentDto.get(0).getScores().get("History"));
+        assertEquals(student2.getScores().get("History"), studentDto.get(1).getScores().get("History"));
+        verify(studentRepository, times(1)).findStudentsByNameIgnoreCase(name);
+    }
 }

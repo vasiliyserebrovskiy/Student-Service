@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 
-//two variant: with request and custome repository
+//two variants: with request and custom repository
 public interface StudentRepository extends MongoRepository<Student, Long> {//, CustomStudentRepository {
 
     Stream<Student> findStudentsByNameIgnoreCase(String name);
